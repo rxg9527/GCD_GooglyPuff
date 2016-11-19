@@ -216,7 +216,16 @@ UIActionSheetDelegate>
 
 - (void)showOrHideNavPrompt
 {
-    // Implement me!
+    NSUInteger count = [[PhotoManager sharedManager] photos].count;
+    double delayInSeconds = 1.0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC)); // 1
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){ // 2
+        if (!count) {
+            [self.navigationItem setPrompt:@"Add photos with faces to Googlyify them!"];
+        } else {
+            [self.navigationItem setPrompt:nil];
+        }
+    });
 }
 
 - (void)downloadImageAssets
