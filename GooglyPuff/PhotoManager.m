@@ -17,6 +17,13 @@
 
 + (instancetype)sharedManager
 {
+    /**
+     https://github.com/nixzhu/dev-blog/blob/master/2014-04-19-grand-central-dispatch-in-depth-part-1.md
+     if 条件分支不是线程安全的；如果你多次调用这个方法，有一个可能性是在某个线程（就叫它线程A）上进入 if 语句块并可能在 sharedPhotoManager 被分配内存前发生一个上下文切换。然后另一个线程（线程B）可能进入 if ，分配单例实例的内存，然后退出。
+     Context Switch 上下文切换（单核设备使用并发操作的实质-『伪并行』）
+     
+     一个上下文切换指当你在单个进程里切换执行不同的线程时存储与恢复执行状态的过程。这个过程在编写多任务应用时很普遍，但会带来一些额外的开销。
+     */
     static PhotoManager *sharedPhotoManager = nil;
     if (!sharedPhotoManager) {
         sharedPhotoManager = [[PhotoManager alloc] init];
