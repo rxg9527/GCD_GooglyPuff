@@ -38,8 +38,12 @@ const CGFloat kFaceBoundsToEyeScaleFactor = 4.0f;
         [self.photoImageView setContentMode:UIViewContentModeCenter];
     }
     
-    UIImage *overlayImage = [self faceOverlayImageFromImage:_image];
-    [self fadeInNewImage:overlayImage];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        UIImage *overlayImage = [self faceOverlayImageFromImage:_image];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self fadeInNewImage:overlayImage];
+        });
+    });
 }
 
 //*****************************************************************************/
