@@ -37,11 +37,18 @@
 #pragma mark - Unsafe Setter/Getters
 //*****************************************************************************/
 
+/*
+ 读方法，它读取可变数组。它为调用者生成一个不可变的拷贝，防止调用者不当地改变数组，但这不能提供任何保护来对抗当一个线程调用读方法 photos 的同时另一个线程调用写方法 addPhoto:
+ */
 - (NSArray *)photos
 {
     return _photosArray;
 }
 
+
+/*
+ 许多线程可以同时读取 NSMutableArray 的一个实例而不会产生问题，但当一个线程正在读取时让另外一个线程修改数组就是不安全的。
+ */
 - (void)addPhoto:(Photo *)photo
 {
     if (photo) {
