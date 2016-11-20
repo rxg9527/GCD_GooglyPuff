@@ -45,7 +45,11 @@
  */
 - (NSArray *)photos
 {
-    return _photosArray;
+    __block NSArray *array;
+    dispatch_sync(self.concurrentPhotoQueue, ^{ // 在 concurrentPhotoQueue 上同步调度来执行读操作。
+        array = [NSArray arrayWithArray:_photosArray]; 
+    });
+    return array;
 }
 
 /*
