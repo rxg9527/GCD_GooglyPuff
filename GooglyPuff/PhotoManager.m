@@ -86,7 +86,7 @@
     __block NSError *error;
     dispatch_group_t downloadGroup = dispatch_group_create();
     
-    dispatch_apply(3, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+    for (NSInteger i = 0; i < 3; i++) {
         NSURL *url;
         switch (i) {
             case 0:
@@ -102,17 +102,17 @@
                 break;
         }
         
-        dispatch_group_enter(downloadGroup);
+        dispatch_group_enter(downloadGroup); // 2
         Photo *photo = [[Photo alloc] initwithURL:url
                               withCompletionBlock:^(UIImage *image, NSError *_error) {
                                   if (_error) {
                                       error = _error;
                                   }
-                                  dispatch_group_leave(downloadGroup);
+                                  dispatch_group_leave(downloadGroup); // 3
                               }];
         
         [[PhotoManager sharedManager] addPhoto:photo];
-    });
+    }
     
     dispatch_group_notify(downloadGroup, dispatch_get_main_queue(), ^{ // 4
         if (completionBlock) {
