@@ -25,11 +25,11 @@
      一个上下文切换指当你在单个进程里切换执行不同的线程时存储与恢复执行状态的过程。这个过程在编写多任务应用时很普遍，但会带来一些额外的开销。
      */
     static PhotoManager *sharedPhotoManager = nil;
-    if (!sharedPhotoManager) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         sharedPhotoManager = [[PhotoManager alloc] init];
         sharedPhotoManager->_photosArray = [NSMutableArray array];
-    }
-
+    });
     return sharedPhotoManager;
 }
 
