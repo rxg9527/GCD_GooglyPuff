@@ -11,6 +11,7 @@
 
 @interface PhotoManager ()
 @property (nonatomic, strong) NSMutableArray *photosArray;
+@property (nonatomic, strong) dispatch_queue_t concurrentPhotoQueue;
 @end
 
 @implementation PhotoManager
@@ -29,6 +30,8 @@
     dispatch_once(&onceToken, ^{
         sharedPhotoManager = [[PhotoManager alloc] init];
         sharedPhotoManager->_photosArray = [NSMutableArray array];
+        
+        sharedPhotoManager->_concurrentPhotoQueue = dispatch_queue_create("com.selander.GooglyPuff.photoQueue", DISPATCH_QUEUE_CONCURRENT);
     });
     return sharedPhotoManager;
 }
@@ -45,16 +48,25 @@
     return _photosArray;
 }
 
-
 /*
  许多线程可以同时读取 NSMutableArray 的一个实例而不会产生问题，但当一个线程正在读取时让另外一个线程修改数组就是不安全的。
  */
 - (void)addPhoto:(Photo *)photo
 {
-    if (photo) {
-        [_photosArray addObject:photo];
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self postContentAddedNotification];
+    /*
+     if (photo) {
+     [_photosArray addObject:photo];
+     dispatch_async(dispatch_get_main_queue(), ^{
+     [self postContentAddedNotification];
+     });
+     }
+     */
+    if (photo) { // 在执行下面所有的工作前检查是否有合法的相片。
+        dispatch_barrier_async(self.concurrentPhotoQueue, ^{ // 添加写操作到你的自定义队列。当临界区在稍后执行时，这将是你队列中唯一执行的条目。
+            [_photosArray addObject:photo]; // 这是添加对象到数组的实际代码。由于它是一个障碍 Block ，这个 Block 永远不会同时和其它 Block 一起在 concurrentPhotoQueue 中执行。
+            dispatch_async(dispatch_get_main_queue(), ^{ // 最后你发送一个通知说明完成了添加图片。这个通知将在主线程被发送因为它将会做一些 UI 工作，所以在此为了通知，你异步地调度另一个任务到主线程。
+                [self postContentAddedNotification];
+            });
         });
     }
 }
