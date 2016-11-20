@@ -78,10 +78,14 @@
 //*****************************************************************************/
 #pragma mark - Public Methods
 //*****************************************************************************/
-
+/*
+ dispatch_group_notify 以异步的方式工作。当 Dispatch Group 中没有任何任务时，它就会执行其代码，那么 completionBlock 便会运行。你还指定了运行 completionBlock 的队列，此处，主队列就是你所需要的。
+ */
 - (void)downloadPhotosWithCompletionBlock:(BatchPhotoDownloadingCompletionBlock)completionBlock
 {
+    // 1
     __block NSError *error;
+    dispatch_group_t downloadGroup = dispatch_group_create();
     
     for (NSInteger i = 0; i < 3; i++) {
         NSURL *url;
@@ -98,20 +102,24 @@
             default:
                 break;
         }
-    
+        
+        dispatch_group_enter(downloadGroup); // 2
         Photo *photo = [[Photo alloc] initwithURL:url
                               withCompletionBlock:^(UIImage *image, NSError *_error) {
                                   if (_error) {
                                       error = _error;
                                   }
+                                  dispatch_group_leave(downloadGroup); // 3
                               }];
-    
+        
         [[PhotoManager sharedManager] addPhoto:photo];
     }
     
-    if (completionBlock) {
-        completionBlock(error);
-    }
+    dispatch_group_notify(downloadGroup, dispatch_get_main_queue(), ^{ // 4
+        if (completionBlock) {
+            completionBlock(error);
+        }
+    });
 }
 
 //*****************************************************************************/
