@@ -33,6 +33,9 @@ UIActionSheetDelegate>
 {
     [super viewDidLoad];
     
+    /*
+     你可以用它去调试一个对象并在任何你想恢复应用的时候显示数据；你同样能给你的应用加上自定义的安全逻辑以便在恶意攻击者将一个调试器连接到你的应用上时保护它自己（或用户的数据）。
+     */
     // 最好是在 DEBUG 模式下编译这些代码，因为这会给“有关方面（Interested Parties）”很多关于你应用的洞察
 #if DEBUG
     // Just to mix things up，你创建了一个 dispatch_queue_t 实例变量而不是在参数上直接使用函数。当代码变长，分拆有助于可读性。
