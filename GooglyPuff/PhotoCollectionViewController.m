@@ -32,6 +32,37 @@ UIActionSheetDelegate>
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // 最好是在 DEBUG 模式下编译这些代码，因为这会给“有关方面（Interested Parties）”很多关于你应用的洞察
+#if DEBUG
+    // Just to mix things up，你创建了一个 dispatch_queue_t 实例变量而不是在参数上直接使用函数。当代码变长，分拆有助于可读性。
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    
+    // 你需要 source 在方法范围之外也可被访问，所以你使用了一个 static 变量
+    static dispatch_source_t source = nil;
+    
+    // 使用 weakSelf 以确保不会出现保留环（Retain Cycle）
+    __typeof(self) __weak weakSelf = self;
+    
+    // 确保只会执行一次 Dispatch Source 的设置
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 初始化 source 变量。你指明了你对信号监控感兴趣并提供了 SIGSTOP 信号作为第二个参数。进一步，你使用主队列处理接收到的事件——很快你就好发现为何要这样做
+        source = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGSTOP, 0, queue);
+        
+        // 如果你提供的参数不合格，那么 Dispatch Source 对象不会被创建。也就是说，在你开始在其上工作之前，你需要确保已有了一个有效的 Dispatch Source
+        if (source)
+        {
+            // 当你收到你所监控的信号时，dispatch_source_set_event_handler 就会执行。之后你可以在其 Block 里设置合适的逻辑处理器（Logic Handler）
+            dispatch_source_set_event_handler(source, ^{
+                // 一个基本的 NSLog 语句，它将对象打印到控制台
+                NSLog(@"Hi, I am: %@", weakSelf);
+            });
+            dispatch_resume(source); // 默认的，所有源都初始为暂停状态。如果你要开始监控事件，你必须告诉源对象恢复活跃状态。
+        }
+    });
+#endif
+
     self.library = [[ALAssetsLibrary alloc] init];
     
     // Background image setup
