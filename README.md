@@ -2,9 +2,9 @@
 
 Ray Wenderlich 的GCD深入理解系列，文章译者 @nixzhu。这是示例工程，可以看 Git History。
 
-本译文转自[nixzhu的](https://github.com/nixzhu/dev-blog/blob/master/2014-04-19-grand-central-dispatch-in-depth-part-1.md)
+本译文转自[nixzhu的GitHub](https://github.com/nixzhu/dev-blog/blob/master/2014-04-19-grand-central-dispatch-in-depth-part-1.md)
 
-本文翻译自 [http://www.raywenderlich.com/60749/grand-central-dispatch-in-depth-part-1](http://www.raywenderlich.com/60749/grand-central-dispatch-in-depth-part-1)
+翻译自 [http://www.raywenderlich.com/60749/grand-central-dispatch-in-depth-part-1](http://www.raywenderlich.com/60749/grand-central-dispatch-in-depth-part-1)
 
 原作者：[Derek Selander](http://www.raywenderlich.com/u/Lolgrep)
 
